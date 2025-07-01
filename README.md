@@ -5,7 +5,6 @@
 
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
 ![OpenCV](https://img.shields.io/badge/opencv-v4.5+-green.svg)
-![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)
 ![Tests](https://img.shields.io/badge/tests-passing-success.svg)
 
@@ -16,6 +15,20 @@
 ---
 
 </div>
+
+## 📋 Table of Contents
+
+- [What This System Does](#-what-this-system-does)
+- [Technology Stack](#️-technology-stack)
+- [Project Structure](#-project-structure--organization)
+- [Pipeline Architecture](#-pipeline-architecture---step-by-step-breakdown)
+- [Quick Start Guide](#-quick-start-guide)
+- [Testing Framework](#-comprehensive-testing-framework)
+- [Configuration](#️-configuration--customization)
+- [Troubleshooting](#-troubleshooting--common-issues)
+- [Installation](#-installation--requirements)
+
+---
 
 A robust, production-ready pipeline that automatically detects corner markers from scanned or photographed OMR (Optical Mark Recognition) sheets and applies perspective transformation to produce perfectly aligned, cropped images. The system features advanced self-recovery mechanisms, comprehensive testing, and step-by-step debugging capabilities.
 
@@ -279,7 +292,11 @@ If Step 3 verification detects invalid corners:
 
 ```bash
 # Navigate to project directory
-cd OMR-Cropper
+cd OMR-CROPPER
+
+# Set up virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate
 
 # Install required dependencies
 pip install -r requirements.txt
@@ -287,6 +304,8 @@ pip install -r requirements.txt
 # Verify installation
 python3 main.py --help
 ```
+
+> **Note:** If you get "externally-managed-environment" error, the virtual environment setup above will resolve it.
 
 ### 2. Basic Usage
 
@@ -899,18 +918,32 @@ print(f"Success: {success}")
 
 #### 1. Clone or Download Project
 ```bash
-git clone <repository-url>
-cd OMR-Cropper
+git clone git@github.com:OMEED-M/OMR-CROPPER.git
+cd OMR-CROPPER
 ```
 
-#### 2. Install Dependencies
+#### 2. Set Up Virtual Environment (Recommended)
 ```bash
-# Install from requirements file (recommended)
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+#### 2. Alternative: Install Dependencies Directly
+```bash
+# If you prefer not to use virtual environment
 pip install -r requirements.txt
 
 # Or install manually
 pip install opencv-python>=4.5.0 numpy>=1.19.0
 ```
+
+> **Note:** If you get "externally-managed-environment" error, use the virtual environment method above.
 
 #### 3. Verify Installation
 ```bash
@@ -925,25 +958,12 @@ python3 tests/test_normal.py
 
 **Core Dependencies (Required):**
 - **opencv-python (≥4.5.0)** - Computer vision and image processing
-  - Image loading, saving, and format conversion
-  - Perspective transformation and geometric operations
-  - Drawing functions for debug visualizations
-  - Binary image processing and thresholding
-
 - **numpy (≥1.19.0)** - Numerical computing and array operations
-  - Multi-dimensional array operations
-  - Mathematical computations for corner calculations
-  - Efficient pixel-level image manipulations
-  - Geometric transformations and coordinate handling
 
 **Standard Library (Included with Python):**
-- `pathlib` - Modern path handling and file operations
+- `pathlib` - Path handling and file operations
 - `argparse` - Command-line argument parsing
 - `os`, `sys` - System operations and path management
-- `time` - Performance timing and measurements
-
-**Optional Dependencies:**
-- `pytest` - For advanced testing frameworks (uncomment in requirements.txt)
 
 ### Installation Verification
 
@@ -961,239 +981,3 @@ python3 main.py tests/input/1.jpg --no-debug
 # Test 4: Run comprehensive tests
 python3 tests/test_normal.py
 ```
-
-### Platform-Specific Notes
-
-#### Linux (Ubuntu/Debian)
-```bash
-# Install system dependencies if needed
-sudo apt update
-sudo apt install python3-pip python3-venv
-
-# Create virtual environment (recommended)
-python3 -m venv omr-env
-source omr-env/bin/activate
-pip install -r requirements.txt
-```
-
-#### macOS
-```bash
-# Using Homebrew
-brew install python3
-
-# Install dependencies
-pip3 install -r requirements.txt
-```
-
-#### Windows
-```bash
-# Using Command Prompt or PowerShell
-python -m pip install -r requirements.txt
-
-# Or using conda
-conda install opencv numpy
-```
-
----
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
----
-
-## 👨‍🔬 Author
-
-Custom-designed OMR detection pipeline with validation and repair logic. Modular, debuggable, and scalable.
-
-**Key Features:**
-- 🎯 High accuracy marker detection
-- 🔧 Self-healing corner repair
-- 🧪 Comprehensive test suite
-- 📊 Detailed analytics and reporting
-- ⚙️ Highly configurable
-- 🔍 Step-by-step debugging
-
----
-
-## 🚀 Future Enhancements & Roadmap
-
-### Planned Features
-
-#### Version 2.0 - Enhanced Detection
-- [ ] **Multi-scale corner detection** - Handle various marker sizes automatically
-- [ ] **Machine learning integration** - CNN-based corner detection for improved accuracy
-- [ ] **Template matching** - Support for different OMR sheet layouts and formats
-- [ ] **Adaptive thresholding** - Automatic threshold selection based on image analysis
-
-#### Version 2.1 - User Experience
-- [ ] **GUI application** - User-friendly interface for manual correction and batch processing
-- [ ] **Web API** - REST API using FastAPI for cloud-based processing
-- [ ] **Progress indicators** - Real-time progress bars for batch operations
-- [ ] **Image preview** - Before/after comparison views
-
-#### Version 2.2 - Advanced Features
-- [ ] **PDF support** - Direct PDF-to-image conversion and processing
-- [ ] **Markerless detection** - Sheet outline detection when corner markers are missing
-- [ ] **Quality assessment** - Automatic image quality scoring and recommendations
-- [ ] **Batch optimization** - Multi-threaded processing for large image sets
-
-#### Version 3.0 - Production Ready
-- [ ] **Docker containerization** - Easy deployment and scaling
-- [ ] **Performance optimization** - GPU acceleration for high-volume processing
-- [ ] **Cloud integration** - AWS/Azure/GCP deployment options
-- [ ] **Monitoring & analytics** - Processing statistics and performance metrics
-
-### Contributing Guidelines
-
-#### How to Contribute
-1. **Fork the repository** and create a feature branch
-2. **Add comprehensive tests** for any new functionality
-3. **Update documentation** including README and code comments
-4. **Submit pull request** with detailed description of changes
-
-#### Development Setup
-```bash
-# Clone your fork
-git clone <your-fork-url>
-cd OMR-Cropper
-
-# Create development environment
-python3 -m venv dev-env
-source dev-env/bin/activate
-
-# Install development dependencies
-pip install -r requirements.txt
-pip install pytest black flake8  # Optional development tools
-
-# Run tests before making changes
-python3 tests/test_normal.py
-```
-
-#### Testing New Features
-```bash
-# Add test images to tests/input/
-# Add expected results to tests/references/
-# Create new test file following existing patterns
-# Run all test suites to ensure no regressions
-```
-
-### Research & Experimentation
-
-#### Current Research Areas
-- **Corner detection algorithms:** Comparing grid-based vs. contour-based approaches
-- **Perspective correction accuracy:** Evaluating transformation quality metrics
-- **Missing corner recovery:** Testing geometric vs. machine learning approaches
-- **Performance optimization:** Profiling bottlenecks and optimization opportunities
-
-#### Experimental Features
-- **Multi-corner templates:** Support for 6-corner or 8-corner marker layouts
-- **Real-time processing:** Live camera feed processing for mobile applications
-- **Quality-based retry:** Automatic reprocessing with different parameters
-- **Confidence scoring:** Numerical confidence scores for detection results
-
----
-
-## 📄 License & Legal
-
-### Open Source License
-
-This project is released under the **MIT License**, providing maximum flexibility for both personal and commercial use.
-
-```
-MIT License
-
-Copyright (c) 2025 OMR-Cropper Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-### Third-Party Licenses
-
-- **OpenCV:** Apache 2.0 License
-- **NumPy:** BSD 3-Clause License
-- **Python:** Python Software Foundation License
-
----
-
-## 👥 Authors & Acknowledgments
-
-### Project Team
-
-**Lead Developer:** Advanced OMR processing pipeline design and implementation
-**Architecture:** Modular pipeline design with comprehensive error recovery
-**Testing:** Reference-based testing framework with multiple test scenarios
-
-### Key Features Developed
-
-- 🎯 **Grid-based corner detection** - More robust than traditional contour methods
-- 🔧 **Self-healing corner recovery** - Geometric calculation of missing corners
-- 🧪 **Comprehensive testing** - Reference-based validation with pixel-perfect comparison
-- 📊 **Step-by-step debugging** - Complete visualization of processing pipeline
-- ⚙️ **Highly configurable** - Extensive configuration system for different use cases
-
-### Technical Innovations
-
-1. **Adaptive Corner Detection:** Grid-based analysis handles various marker sizes and qualities
-2. **Geometric Recovery:** Mathematical corner calculation from 3 known points
-3. **Quality Verification:** Line-based validation prevents false positive detections
-4. **Modular Architecture:** Clean separation allows individual step testing and customization
-
----
-
-## 📞 Support & Community
-
-### Getting Help
-
-1. **📖 Documentation:** Start with this comprehensive README
-2. **🐛 Debug Images:** Check `tmp/steps/` for step-by-step visualizations
-3. **🧪 Test Suite:** Run tests to verify system functionality
-4. **⚙️ Configuration:** Review and adjust `config.py` parameters
-
-### Reporting Issues
-
-When reporting problems, please include:
-
-1. **Input image** (if possible) or description of image characteristics
-2. **Error messages** from console output
-3. **Debug images** from `tmp/steps/` directory
-4. **Configuration changes** from default settings
-5. **System information** (OS, Python version, dependency versions)
-
-### Feature Requests
-
-We welcome suggestions for:
-
-- **New detection algorithms** for challenging image types
-- **Additional output formats** or processing options
-- **Performance improvements** for large-scale processing
-- **Integration capabilities** with other OMR systems
-
-### Community Guidelines
-
-- **Be respectful** and constructive in all interactions
-- **Provide detailed information** when asking for help
-- **Test thoroughly** before reporting bugs
-- **Document your contributions** clearly and completely
-
----
-
-**🎉 Thank you for using the OMR Sheet Marker Detection & Cropping System!**
-
-*Built with ❤️ for the OMR processing community*
