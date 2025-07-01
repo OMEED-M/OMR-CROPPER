@@ -1,0 +1,10 @@
+# OMR Sheet Marker Detection & Cropping System - Dependencies
+#
+# Python compatibility: 3.8+
+# Tested with: Python 3.8, 3.9, 3.10, 3.11, 3.12
+
+# Core image processing and computer vision
+opencv-python>=4.5.0
+
+# Numerical computing and array operations
+numpy>=1.19.0

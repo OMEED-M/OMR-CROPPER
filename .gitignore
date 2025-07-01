@@ -1,0 +1,22 @@
+# Temporary processing files
+tmp/
+
+# Python cache
+__pycache__/
+
+/pipeline/__pycache__/
+
+# Python bytecode
+*.pyc
+*.pyo
+
+# Environment files
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
