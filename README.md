@@ -96,6 +96,8 @@ OMR-Cropper/
         └── {name}_step_4b_cropped_deskewed.jpg
 ```
 
+> **Note:** The `tmp/` directory and subdirectories are created automatically when you run the pipeline for the first time.
+
 ### Key Files Explained
 
 **Core Files:**

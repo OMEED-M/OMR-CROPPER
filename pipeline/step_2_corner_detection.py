@@ -316,5 +316,8 @@ def _create_synthetic_contours(cells, image_shape):
 
 def _save_step_image(image, filename):
     """Save step image to configured directory."""
-    path = os.path.join(config.tmp_dir, config.steps_dir, filename)
+    import os
+    steps_path = os.path.join(config.tmp_dir, config.steps_dir)
+    os.makedirs(steps_path, exist_ok=True)
+    path = os.path.join(steps_path, filename)
     cv2.imwrite(path, image)

@@ -184,6 +184,9 @@ class OMRPipeline:
 
     def _save_final_output(self, final_image, step_base_name):
         """Save the final cropped image."""
+        # Ensure output directory exists
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
         output_filename = f"{step_base_name}_cropped.jpg"
         output_path = self.output_dir / output_filename
 
@@ -192,6 +195,9 @@ class OMRPipeline:
 
     def _save_step_image(self, image, filename):
         """Save intermediate step image for debugging."""
+        # Ensure steps directory exists
+        self.steps_dir.mkdir(parents=True, exist_ok=True)
+
         step_path = self.steps_dir / filename
         cv2.imwrite(str(step_path), image)
 

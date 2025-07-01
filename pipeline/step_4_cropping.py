@@ -193,6 +193,9 @@ def _create_crop_visualization(original_image, corners):
 
 def _save_step_image(image, filename):
     """Save step image to configured directory."""
-    path = os.path.join(config.tmp_dir, config.steps_dir, filename)
+    import os
+    steps_path = os.path.join(config.tmp_dir, config.steps_dir)
+    os.makedirs(steps_path, exist_ok=True)
+    path = os.path.join(steps_path, filename)
     cv2.imwrite(path, image)
-    print(f"   💾 Step 3{'a' if 'process' in filename else 'b'}: {'Crop process visualization' if 'process' in filename else 'Final cropped result'} saved to {path}")
+    print(f"   💾 Step 4{'a' if 'process' in filename else 'b'}: {'Crop process visualization' if 'process' in filename else 'Final cropped result'} saved to {path}")
