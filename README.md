@@ -1,6 +1,21 @@
+
+<div align="center">
+
 # 📝 OMR Sheet Marker Detection & Cropping System
 
+![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
+![OpenCV](https://img.shields.io/badge/opencv-v4.5+-green.svg)
+![License](https://img.shields.io/badge/license-MIT-orange.svg)
+![Status](https://img.shields.io/badge/status-production%20ready-brightgreen.svg)
+![Tests](https://img.shields.io/badge/tests-passing-success.svg)
+
 > **Intelligent corner marker detection and perspective correction for OMR sheets**
+
+*A robust, production-ready computer vision pipeline for automated OMR sheet preprocessing*
+
+---
+
+</div>
 
 A robust, production-ready pipeline that automatically detects corner markers from scanned or photographed OMR (Optical Mark Recognition) sheets and applies perspective transformation to produce perfectly aligned, cropped images. The system features advanced self-recovery mechanisms, comprehensive testing, and step-by-step debugging capabilities.
 
