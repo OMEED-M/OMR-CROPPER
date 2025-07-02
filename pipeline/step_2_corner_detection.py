@@ -315,9 +315,14 @@ def _create_synthetic_contours(cells, image_shape):
 
 
 def _save_step_image(image, filename):
-    """Save step image to configured directory."""
-    import os
+    """Save step image to configured directory with automatic overwrite."""
     steps_path = os.path.join(config.tmp_dir, config.steps_dir)
+    # Always create directory structure (handles existing directories gracefully)
     os.makedirs(steps_path, exist_ok=True)
     path = os.path.join(steps_path, filename)
-    cv2.imwrite(path, image)
+    # cv2.imwrite automatically overwrites existing files
+    success = cv2.imwrite(path, image)
+    if success:
+        print(f"   💾 Step 2: Saved {path}")
+    else:
+        print(f"   ❌ Step 2: Failed to save {path}")

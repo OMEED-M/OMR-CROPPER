@@ -192,10 +192,16 @@ def _create_crop_visualization(original_image, corners):
 
 
 def _save_step_image(image, filename):
-    """Save step image to configured directory."""
-    import os
+    """Save step image to configured directory with automatic overwrite."""
     steps_path = os.path.join(config.tmp_dir, config.steps_dir)
+    # Always create directory structure (handles existing directories gracefully)
     os.makedirs(steps_path, exist_ok=True)
     path = os.path.join(steps_path, filename)
-    cv2.imwrite(path, image)
-    print(f"   💾 Step 4{'a' if 'process' in filename else 'b'}: {'Crop process visualization' if 'process' in filename else 'Final cropped result'} saved to {path}")
+    # cv2.imwrite automatically overwrites existing files
+    success = cv2.imwrite(path, image)
+    if success:
+        step_type = 'a' if 'process' in filename else 'b'
+        description = 'Crop process visualization' if 'process' in filename else 'Final cropped result'
+        print(f"   💾 Step 4{step_type}: {description} saved to {path}")
+    else:
+        print(f"   ❌ Step 4: Failed to save {path}")

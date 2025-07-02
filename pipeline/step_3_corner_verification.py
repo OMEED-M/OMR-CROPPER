@@ -141,15 +141,15 @@ def _identify_corner_positions(corners):
 
 def _verify_single_corner(vis_image, corner, all_corners, corner_labels, current_label, corner_index):
     """
-    Verify a single corner by drawing lines from adjacent corners.
-
-    For each corner:
-    - TL: lines from TR and BL
-    - TR: lines from TL and BR
-    - BR: lines from TR and BL
-    - BL: lines from TL and BR
+    Verify a single corner by checking if lines from adjacent corners pass through it.
     """
     x, y = corner
+    img_height, img_width = vis_image.shape[:2]
+    diagonal = np.sqrt(img_width**2 + img_height**2)
+
+    # Calculate relative tolerance and circle radius
+    tolerance = int(diagonal * config.CORNER_VERIFICATION_TOLERANCE_RATIO)
+    circle_radius = int(diagonal * config.CORNER_VERIFICATION_CIRCLE_RADIUS_RATIO)
 
     # Define adjacent corners for each position
     adjacent_map = {
@@ -162,137 +162,53 @@ def _verify_single_corner(vis_image, corner, all_corners, corner_labels, current
     if current_label not in adjacent_map:
         return False
 
-    adjacent_labels = adjacent_map[current_label]
-
     # Find adjacent corners
     adjacent_corners = []
     for i, label in enumerate(corner_labels):
-        if label in adjacent_labels and i != corner_index:
+        if label in adjacent_map[current_label] and i != corner_index:
             adjacent_corners.append(all_corners[i])
 
     if len(adjacent_corners) < 2:
-        # Not enough adjacent corners found
-        cv2.circle(vis_image, corner, config.CORNER_VERIFICATION_CIRCLE_RADIUS, config.COLOR_RED, config.CORNER_VERIFICATION_CIRCLE_THICKNESS)
-        cv2.putText(vis_image, f"{current_label}-FAIL", (x+config.CORNER_VERIFICATION_TEXT_OFFSET_X, y+config.CORNER_VERIFICATION_TEXT_OFFSET_Y),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, config.COLOR_RED, 2)
+        cv2.circle(vis_image, corner, circle_radius, config.COLOR_RED, 2)
         return False
 
-    # Draw lines from adjacent corners and check if they pass through current corner
+    # Draw both horizontal and vertical lines from adjacent corners
     lines_passing = 0
-    tolerance = config.CORNER_VERIFICATION_TOLERANCE
-
-    for i, adj_corner in enumerate(adjacent_corners[:2]):  # Only use first 2 adjacent corners
-        adj_x, adj_y = adj_corner
-
-        # Determine if line should be horizontal or vertical
-        if current_label == "TL":
-            if abs(adj_y - y) < abs(adj_x - x):  # More horizontal difference
-                # Draw horizontal line from TR
-                line_color = config.COLOR_ORANGE
-                cv2.line(vis_image, (0, adj_y), (vis_image.shape[1], adj_y), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(y - adj_y) <= tolerance:
-                    lines_passing += 1
-            else:
-                # Draw vertical line from BL
-                line_color = config.COLOR_LIGHT_BLUE
-                cv2.line(vis_image, (adj_x, 0), (adj_x, vis_image.shape[0]), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(x - adj_x) <= tolerance:
-                    lines_passing += 1
-
-        elif current_label == "TR":
-            if abs(adj_y - y) < abs(adj_x - x):  # More horizontal difference
-                # Draw horizontal line from TL
-                line_color = config.COLOR_ORANGE
-                cv2.line(vis_image, (0, adj_y), (vis_image.shape[1], adj_y), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(y - adj_y) <= tolerance:
-                    lines_passing += 1
-            else:
-                # Draw vertical line from BR
-                line_color = config.COLOR_LIGHT_BLUE
-                cv2.line(vis_image, (adj_x, 0), (adj_x, vis_image.shape[0]), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(x - adj_x) <= tolerance:
-                    lines_passing += 1
-
-        elif current_label == "BR":
-            if abs(adj_y - y) < abs(adj_x - x):  # More horizontal difference
-                # Draw horizontal line from BL
-                line_color = config.COLOR_ORANGE
-                cv2.line(vis_image, (0, adj_y), (vis_image.shape[1], adj_y), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(y - adj_y) <= tolerance:
-                    lines_passing += 1
-            else:
-                # Draw vertical line from TR
-                line_color = config.COLOR_LIGHT_BLUE
-                cv2.line(vis_image, (adj_x, 0), (adj_x, vis_image.shape[0]), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(x - adj_x) <= tolerance:
-                    lines_passing += 1
-
-        elif current_label == "BL":
-            if abs(adj_y - y) < abs(adj_x - x):  # More horizontal difference
-                # Draw horizontal line from BR
-                line_color = config.COLOR_ORANGE
-                cv2.line(vis_image, (0, adj_y), (vis_image.shape[1], adj_y), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(y - adj_y) <= tolerance:
-                    lines_passing += 1
-            else:
-                # Draw vertical line from TL
-                line_color = config.COLOR_LIGHT_BLUE
-                cv2.line(vis_image, (adj_x, 0), (adj_x, vis_image.shape[0]), line_color, config.CORNER_VERIFICATION_LINE_THICKNESS)
-                if abs(x - adj_x) <= tolerance:
-                    lines_passing += 1
-
-    # A corner passes if at least 1 line passes through it
-    is_valid = lines_passing >= config.CORNER_VERIFICATION_MIN_LINES
-
-    # Draw corner marker
-    if is_valid:
-        cv2.circle(vis_image, corner, config.CORNER_VERIFICATION_CIRCLE_RADIUS, config.COLOR_GREEN, config.CORNER_VERIFICATION_CIRCLE_THICKNESS)
-        cv2.putText(vis_image, f"{current_label}-OK", (x+config.CORNER_VERIFICATION_TEXT_OFFSET_X, y+config.CORNER_VERIFICATION_TEXT_OFFSET_Y),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, config.COLOR_GREEN, 2)
-    else:
-        cv2.circle(vis_image, corner, config.CORNER_VERIFICATION_CIRCLE_RADIUS, config.COLOR_RED, config.CORNER_VERIFICATION_CIRCLE_THICKNESS)
-        cv2.putText(vis_image, f"{current_label}-FAIL", (x+config.CORNER_VERIFICATION_TEXT_OFFSET_X, y+config.CORNER_VERIFICATION_TEXT_OFFSET_Y),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, config.COLOR_RED, 2)
-
-    # Draw arrows showing incoming/outgoing directions
-    _draw_direction_arrows(vis_image, corner, adjacent_corners, current_label)
-
-    return is_valid
-
-
-def _draw_direction_arrows(vis_image, corner, adjacent_corners, corner_label):
-    """Draw arrows showing incoming and outgoing line directions."""
-    x, y = corner
-    arrow_length = config.CORNER_VERIFICATION_ARROW_LENGTH
 
     for adj_corner in adjacent_corners:
         adj_x, adj_y = adj_corner
 
-        # Calculate direction vector
-        dx = adj_x - x
-        dy = adj_y - y
+        # Always draw horizontal line from adjacent corner
+        cv2.line(vis_image, (0, adj_y), (img_width, adj_y), config.COLOR_ORANGE, 1)
+        # Check if horizontal line passes through current corner
+        if abs(y - adj_y) <= tolerance:
+            lines_passing += 1
 
-        # Normalize
-        length = np.sqrt(dx*dx + dy*dy)
-        if length > 0:
-            dx /= length
-            dy /= length
+        # Always draw vertical line from adjacent corner
+        cv2.line(vis_image, (adj_x, 0), (adj_x, img_height), config.COLOR_LIGHT_BLUE, 1)
+        # Check if vertical line passes through current corner
+        if abs(x - adj_x) <= tolerance:
+            lines_passing += 1
 
-            # Draw incoming arrow (from adjacent to current)
-            start_x = int(x + dx * arrow_length)
-            start_y = int(y + dy * arrow_length)
-            cv2.arrowedLine(vis_image, (start_x, start_y), (x, y), config.COLOR_YELLOW, 2, tipLength=0.3)
+    # Corner passes if minimum lines pass through it
+    is_valid = lines_passing >= config.CORNER_VERIFICATION_MIN_LINES
 
-            # Draw outgoing arrow (from current to adjacent)
-            end_x = int(x - dx * arrow_length)
-            end_y = int(y - dy * arrow_length)
-            cv2.arrowedLine(vis_image, (x, y), (end_x, end_y), config.COLOR_CYAN_ARROWS, 2, tipLength=0.3)
+    # Draw simple corner marker
+    color = config.COLOR_GREEN if is_valid else config.COLOR_RED
+    cv2.circle(vis_image, corner, circle_radius, color, 2)
+
+    return is_valid
 
 
 def _save_step_image(image, filename):
-    """Save step image to tmp/steps directory."""
-    steps_dir = "tmp/steps"
-    os.makedirs(steps_dir, exist_ok=True)
-    output_path = os.path.join(steps_dir, filename)
-    cv2.imwrite(output_path, image)
-    print(f"   💾 Saved: {output_path}")
+    """Save step image to configured directory with automatic overwrite."""
+    steps_path = os.path.join(config.tmp_dir, config.steps_dir)
+    # Always create directory structure (handles existing directories gracefully)
+    os.makedirs(steps_path, exist_ok=True)
+    output_path = os.path.join(steps_path, filename)
+    # cv2.imwrite automatically overwrites existing files
+    success = cv2.imwrite(output_path, image)
+    if success:
+        print(f"   💾 Saved: {output_path}")
+    else:
+        print(f"   ❌ Failed to save: {output_path}")

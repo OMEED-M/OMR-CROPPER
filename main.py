@@ -42,14 +42,18 @@ class OMRPipeline:
         self._setup_directories()
 
     def _setup_directories(self):
-        """Create necessary directories for pipeline output."""
+        """Create necessary directories for pipeline output with proper error handling."""
         self.tmp_dir = Path("tmp")
         self.output_dir = self.tmp_dir / "output"
         self.steps_dir = self.tmp_dir / "steps"
 
-        # Create directories
-        for directory in [self.tmp_dir, self.output_dir, self.steps_dir]:
-            directory.mkdir(exist_ok=True)
+        # Always create directories (handles existing directories gracefully)
+        try:
+            for directory in [self.tmp_dir, self.output_dir, self.steps_dir]:
+                directory.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            print(f"⚠️  Warning: Could not create directories: {e}")
+            # Continue anyway - individual steps will try to create dirs as needed
 
     def run_pipeline(self):
         """Execute the complete 4-step pipeline."""
@@ -183,23 +187,30 @@ class OMRPipeline:
         return cropped_img
 
     def _save_final_output(self, final_image, step_base_name):
-        """Save the final cropped image."""
-        # Ensure output directory exists
+        """Save the final cropped image with automatic overwrite."""
+        # Always ensure output directory exists (handles existing directories gracefully)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         output_filename = f"{step_base_name}_cropped.jpg"
         output_path = self.output_dir / output_filename
 
-        cv2.imwrite(str(output_path), final_image)
-        print(f"📁 Final cropped image saved to: {output_path}")
+        # cv2.imwrite automatically overwrites existing files
+        success = cv2.imwrite(str(output_path), final_image)
+        if success:
+            print(f"📁 Final cropped image saved to: {output_path}")
+        else:
+            print(f"❌ Failed to save final image to: {output_path}")
 
     def _save_step_image(self, image, filename):
-        """Save intermediate step image for debugging."""
-        # Ensure steps directory exists
+        """Save intermediate step image for debugging with automatic overwrite."""
+        # Always ensure steps directory exists (handles existing directories gracefully)
         self.steps_dir.mkdir(parents=True, exist_ok=True)
 
         step_path = self.steps_dir / filename
-        cv2.imwrite(str(step_path), image)
+        # cv2.imwrite automatically overwrites existing files
+        success = cv2.imwrite(str(step_path), image)
+        if not success:
+            print(f"   ⚠️  Warning: Failed to save step image: {step_path}")
 
 
 def create_argument_parser():

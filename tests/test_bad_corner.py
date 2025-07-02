@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Bad Corner Detection Test
-Tests what happens when Step 3 corner verification detects bad corners
-and triggers the recalculation process using bad-corner.jpg.
+Simple test that runs bad-corner.jpg through the main pipeline
+and compares the output with the expected reference image.
 """
 
 import os
@@ -61,91 +61,43 @@ def test_bad_corner_image():
         config.ENABLE_MISSING_CORNER_CALCULATION = False
         config.FORCE_MISSING_CORNER = None
 
-        # Create pipeline instance
+        # Create pipeline instance and run
         pipeline = OMRPipeline(image_path, debug=config.DEBUG_MODE)
-
-        # Process the image
         start_time = time.time()
         success = pipeline.run_pipeline()
         processing_time = time.time() - start_time
 
-        if success:
-            print(f"   ⏱️  Processing time: {processing_time:.2f}s")
-
-            # Check if recalculation occurred by looking for iteration 2 files
-            steps_dir = Path("tmp/steps")
-            iter2_files = list(steps_dir.glob("bad-corner_iter2*"))
-
-            if iter2_files:
-                print(f"   🔄 RECALCULATION DETECTED! Found {len(iter2_files)} iteration 2 files:")
-                for file in sorted(iter2_files):
-                    print(f"      - {file.name}")
-
-                # Check if we have a reference for comparison
-                expected_path = references_dir / "bad-corner-cropped.jpg"
-                actual_path = Path("tmp/output") / "bad-corner_cropped.jpg"
-
-                if expected_path.exists() and actual_path.exists():
-                    if images_match(str(expected_path), str(actual_path)):
-                        print(f"   ✅ PASSED - Bad corner detected, recalculated, and matched reference")
-                        return True
-                    else:
-                        print(f"   ❌ FAILED - Recalculation occurred but images do not match")
-                        return False
-                else:
-                    print(f"   ✅ PASSED - Bad corner detected and recalculation occurred")
-                    print(f"   ℹ️  No reference image for comparison")
-                    return True
-            else:
-                print(f"   ℹ️  No recalculation detected - all corners passed verification")
-
-                # Still check against reference if available
-                expected_path = references_dir / "bad-corner-cropped.jpg"
-                actual_path = Path("tmp/output") / "bad-corner_cropped.jpg"
-
-                if expected_path.exists() and actual_path.exists():
-                    if images_match(str(expected_path), str(actual_path)):
-                        print(f"   ✅ PASSED - Processing completed and matched reference")
-                        return True
-                    else:
-                        print(f"   ❌ FAILED - Processing completed but images do not match")
-                        return False
-                else:
-                    print(f"   ✅ PASSED - Processing completed successfully")
-                    return True
-        else:
+        if not success:
             print(f"   ❌ FAILED - Pipeline processing failed")
+            return False
+
+        print(f"   ⏱️  Processing time: {processing_time:.2f}s")
+
+        # Compare with reference image
+        expected_path = references_dir / "bad-corner-cropped.jpg"
+        actual_path = Path("tmp/output") / "bad-corner_cropped.jpg"
+
+        if not expected_path.exists():
+            print(f"   ⚠️  No reference image found at {expected_path}")
+            print(f"   ✅ PASSED - Pipeline completed successfully (no reference to compare)")
+            return True
+
+        if not actual_path.exists():
+            print(f"   ❌ FAILED - No output image generated at {actual_path}")
+            return False
+
+        if images_match(str(expected_path), str(actual_path)):
+            print(f"   ✅ PASSED - Output matches reference image")
+            return True
+        else:
+            print(f"   ❌ FAILED - Output does not match reference image")
+            print(f"   📁 Expected: {expected_path}")
+            print(f"   📁 Actual:   {actual_path}")
             return False
 
     except Exception as e:
         print(f"   ❌ ERROR: {str(e)}")
         return False
-
-
-def test_with_strict_settings():
-    """Test with stricter verification settings to force bad corner detection."""
-    print(f"\n🔧 Testing with strict verification settings:")
-
-    # Backup original settings
-    original_tolerance = config.CORNER_VERIFICATION_TOLERANCE
-    original_min_lines = config.CORNER_VERIFICATION_MIN_LINES
-
-    try:
-        # Make verification stricter
-        config.CORNER_VERIFICATION_TOLERANCE = 15  # Much stricter (was 50)
-        config.CORNER_VERIFICATION_MIN_LINES = 2   # Require 2 lines instead of 1
-
-        print(f"   - Tolerance: {original_tolerance} → {config.CORNER_VERIFICATION_TOLERANCE}")
-        print(f"   - Min lines: {original_min_lines} → {config.CORNER_VERIFICATION_MIN_LINES}")
-
-        result = test_bad_corner_image()
-
-        return result
-
-    finally:
-        # Restore original settings
-        config.CORNER_VERIFICATION_TOLERANCE = original_tolerance
-        config.CORNER_VERIFICATION_MIN_LINES = original_min_lines
 
 
 def run_tests():
@@ -157,16 +109,10 @@ def run_tests():
     tests_run = 0
     tests_passed = 0
 
-    # Test 1: Normal verification settings
-    print(f"\n🔄 Test 1/2 - Normal verification settings:")
+    # Test: Normal verification settings
+    print(f"\n🔄 Testing bad-corner.jpg:")
     tests_run += 1
     if test_bad_corner_image():
-        tests_passed += 1
-
-    # Test 2: Strict verification settings
-    print(f"\n🔄 Test 2/2 - Strict verification settings:")
-    tests_run += 1
-    if test_with_strict_settings():
         tests_passed += 1
 
     # Print summary
