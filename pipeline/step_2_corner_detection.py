@@ -117,14 +117,16 @@ def _draw_dashed_lines(image, x1, y1, x2, y2, color, thickness, dash_length):
 def _draw_cell_grid(image, x1, y1, x2, y2, cell_size):
     """Draw cell grid lines."""
     cell_color = (128, 128, 128)
+    height, width = image.shape[:2]
+    thickness = max(1, int(width * config.CELL_GRID_THICKNESS_RATIO))
 
     # Vertical lines
     for cell_x in range(x1, x2, cell_size):
-        cv2.line(image, (cell_x, y1), (cell_x, y2), cell_color, config.CELL_GRID_THICKNESS)
+        cv2.line(image, (cell_x, y1), (cell_x, y2), cell_color, thickness)
 
     # Horizontal lines
     for cell_y in range(y1, y2, cell_size):
-        cv2.line(image, (x1, cell_y), (x2, cell_y), cell_color, config.CELL_GRID_THICKNESS)
+        cv2.line(image, (x1, cell_y), (x2, cell_y), cell_color, thickness)
 
 
 def _analyze_corners(binary_image, corner_regions, cell_size):
@@ -162,33 +164,61 @@ def _create_white_cell_visualization(base_image, corner_results):
     """Add green markers for white cells."""
     vis_image = base_image.copy()
     green_color = (0, 255, 0)
-    cell_size = 6
+    height, width = vis_image.shape[:2]
+    cell_size = max(2, int(width * config.WHITE_CELL_MARKER_SIZE_RATIO))
+    thickness = max(1, int(width * config.WHITE_CELL_BORDER_THICKNESS_RATIO))
 
     for corner_cells in corner_results.values():
         for cell in corner_cells:
             center_x, center_y = cell['center']
             top_left = (center_x - cell_size//2, center_y - cell_size//2)
             bottom_right = (center_x + cell_size//2, center_y + cell_size//2)
-            cv2.rectangle(vis_image, top_left, bottom_right, green_color, 1)
+            cv2.rectangle(vis_image, top_left, bottom_right, green_color, thickness)
 
     return vis_image
 
 
 def _select_best_cells(corner_results, corner_regions, width, height):
-    """Select best cell from each corner based on edge proximity."""
+    """Select best cell from each corner based on weighted scoring: 70% edge proximity + 30% corner proximity."""
     best_cells = []
+
+    # Define actual corner positions for distance calculation
+    corner_positions = {
+        'TL': (0, 0),
+        'TR': (width - 1, 0),
+        'BL': (0, height - 1),
+        'BR': (width - 1, height - 1)
+    }
 
     for corner_name, cells in corner_results.items():
         if not cells or (config.FORCE_MISSING_CORNER and corner_name == config.FORCE_MISSING_CORNER):
             continue
 
-        if corner_name in ['TL', 'BL']:
-            # Select closest to left edge
-            best_cell = min(cells, key=lambda c: c['center'][0])
-        else:
-            # Select closest to right edge
-            best_cell = max(cells, key=lambda c: c['center'][0])
+        # Calculate scores for each cell
+        scored_cells = []
+        corner_pos = corner_positions[corner_name]
 
+        for cell in cells:
+            x, y = cell['center']
+
+            # Edge proximity score (70% weight)
+            if corner_name in ['TL', 'BL']:
+                edge_score = 1.0 - (x / width)  # Closer to left edge = higher score
+            else:  # TR, BR
+                edge_score = x / width  # Closer to right edge = higher score
+
+            # Corner proximity score (30% weight)
+            corner_distance = ((x - corner_pos[0])**2 + (y - corner_pos[1])**2)**0.5
+            max_distance = (width**2 + height**2)**0.5
+            corner_score = 1.0 - (corner_distance / max_distance)
+
+            # Combined weighted score
+            total_score = (0.7 * edge_score) + (0.3 * corner_score)
+
+            scored_cells.append((total_score, cell))
+
+        # Select cell with highest score
+        best_cell = max(scored_cells, key=lambda x: x[0])[1]
         best_cells.append(best_cell)
 
     return best_cells

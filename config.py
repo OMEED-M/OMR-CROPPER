@@ -17,7 +17,7 @@ MARGIN_CROP_RATIO = 0.02
 # Step 2: Corner detection and grid analysis
 CORNER_REGION_RATIO_X = 5
 CORNER_REGION_RATIO_Y = 5
-CELL_SIZE_RATIO = 0.005
+CELL_SIZE_RATIO = 0.003
 WHITE_CELL_THRESHOLD = 70
 SYNTHETIC_MARKER_SIZE_RATIO = 0.004
 
@@ -44,7 +44,9 @@ BEST_CELL_CIRCLE_THICKNESS_RATIO = 0.0015
 VISUALIZATION_HEIGHT = 600
 
 # Grid and cell display
-CELL_GRID_THICKNESS = 1
+CELL_GRID_THICKNESS_RATIO = 0.0005  # Grid line thickness relative to image width
+WHITE_CELL_MARKER_SIZE_RATIO = 0.003  # White cell visualization marker size relative to image width
+WHITE_CELL_BORDER_THICKNESS_RATIO = 0.0005  # White cell border thickness relative to image width
 
 # =============================================================================
 # COLORS (BGR FORMAT)
